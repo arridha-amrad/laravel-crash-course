@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\GlobalConstants;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthenticationController extends Controller
 {
@@ -26,7 +28,7 @@ class AuthenticationController extends Controller
         $user->tokens()->where(['name' => $userAgent, 'tokenable_id' => $user->id])->delete();
         $newAccToken = $user->createToken(name: $userAgent, expiresAt: now()->addYear());
         $token = $newAccToken->plainTextToken;
-        $cookie = cookie(name: 'sanctum-token', value: $token, minutes: 60 * 24 * 365);
+        $cookie = cookie(name: GlobalConstants::JWT_COOKIE, value: $token, minutes: 60 * 24 * 365);
         return response()->json([
             'user' => new UserResource($user),
         ])->withCookie($cookie);
@@ -39,7 +41,8 @@ class AuthenticationController extends Controller
 
     public function logout()
     {
-
-        return response(['message' => 'logout successfully'], 200);
+        request()->user()->currentAccessToken()->delete();
+        $cookie = Cookie::forget(GlobalConstants::JWT_COOKIE);
+        return response(['message' => 'logout successfully'], 200)->withCookie($cookie);
     }
 }

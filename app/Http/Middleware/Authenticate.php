@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\GlobalConstants;
 use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class Authenticate extends Middleware
 
     public function handle($request, Closure $next, ...$guards)
     {
-        if ($jwt = $request->cookie('sanctum-token')) {
+        if ($jwt = $request->cookie(GlobalConstants::JWT_COOKIE)) {
             $request->headers->set('Authorization', "Bearer $jwt");
         }
         $this->authenticate($request, $guards);
