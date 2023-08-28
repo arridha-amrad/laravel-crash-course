@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDetailsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,8 +23,17 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('users', UserController::class);
 
 Route::post("auth/login", [AuthenticationController::class, 'login']);
+Route::prefix("user-details")->group(function () {
+    Route::get("/", [UserDetailsController::class, 'index']);
+    Route::get("/{id}", [UserDetailsController::class, 'show']);
+});
 
 Route::middleware("auth:sanctum")->group(function () {
     Route::get("auth/me", [AuthenticationController::class, 'me']);
     Route::get("auth/logout", [AuthenticationController::class, 'logout']);
+    Route::prefix("user-details")->group(function () {
+        Route::post("/", [UserDetailsController::class, 'store']);
+        Route::put("/{id}", [UserDetailsController::class, 'update']);
+        Route::delete("/{id}", [UserDetailsController::class, 'destroy']);
+    });
 });

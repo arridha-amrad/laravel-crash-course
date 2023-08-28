@@ -17,10 +17,14 @@ class AuthenticationController extends Controller
         $user = null;
         if (str_contains($validated['identity'], "@")) {
             $user = User::where('email', $validated["identity"])->first();
-            if (!Auth::attempt(['email' => $validated['identity'], 'password' => $validated['password']])) return response()->json(['message' => 'Invalid email and password'], 400);
+            if (!Auth::attempt(['email' => $validated['identity'], 'password' => $validated['password']])) {
+                return response()->json(['message' => 'Invalid email and password'], 400);
+            }
         } else {
             $user = User::where('username', $validated["identity"])->first();
-            if (!Auth::attempt(['username' => $validated['identity'], 'password' => $validated['password']])) return response()->json(['message' => 'Invalid username and password'], 400);
+            if (!Auth::attempt(['username' => $validated['identity'], 'password' => $validated['password']])) {
+                return response()->json(['message' => 'Invalid username and password'], 400);
+            }
         }
         if (is_null($user)) return response()->json(['message' => 'User not found'], 404);
         $userAgent = request()->header('user-agent') ?? "my-token";
