@@ -26,9 +26,10 @@ class UserDetailsController extends Controller
         $userId = request()->user()->id;
 
         if (!is_null(UserDetails::where('user_id', $userId)->first())) {
-            return response()->json([
-                'message' => 'Failed storing your details. If you need to change, please consider to update',
-            ], 400);
+            return response()
+                ->json([
+                    'message' => 'Failed storing your details. If you need to change, please consider to update',
+                ], 400);
         }
 
         $userDetails = UserDetails::create([
