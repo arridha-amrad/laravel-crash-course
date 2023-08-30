@@ -19,7 +19,9 @@ class BookController extends Controller
         $safeParams = [
             'title',
             'year',
+            "categories"
         ];
+        $categories = [];
         foreach ($safeParams as $param) {
             $query = request()->query($param);
             if (!isset($query)) continue;
@@ -27,12 +29,17 @@ class BookController extends Controller
                 $eloQuery[] = [$param, "like", "%$query%"];
             } else if ($param === "year") {
                 $eloQuery[] = [$param, ">=", $query];
+            } else if ($param === "categories") {
+                $categories = explode(",", request()->query('categories'));
             }
         }
-        return BookResource::collection(Book::whereHas("categories", function ($query) {
-            $categories = request()->query('categories') ?? [];
-            $query->whereIn('name', explode(", ", $categories));
-        })->orWhere($eloQuery)->paginate());
+        $query = Book::where($eloQuery);
+        foreach ($categories as $category) {
+            $query->whereHas("categories", function ($q) use ($category) {
+                $q->where('name', $category);
+            });
+        }
+        return BookResource::collection($query->paginate());
     }
 
     /**
